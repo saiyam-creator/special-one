@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find the Right Image Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 1.5s ease;
+        }
+
+        .romantic-bg {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1) !important;
+        }
+
+        .quiz-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .fade-out {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        .title {
+            color: #6e8efb;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            width: 300px;
+            height: 200px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 4px solid transparent;
+        }
+
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .option.selected.correct {
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .option.selected.wrong {
+            border-color: #F44336;
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
+        }
+
+        .option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .next-btn {
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .next-btn:active {
+            transform: translateY(1px);
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+
+        .progress-dot.active {
+            background-color: #6e8efb;
+        }
+
+        .show-answer-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .show-answer-btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .answer-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .answer-text {
+            font-size: 8rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+            animation: pulse 2s infinite;
+            z-index: 101;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .language-text {
+            position: absolute;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            animation: fadeInText 1.5s ease forwards, floatText 15s infinite linear;
+            cursor: default;
+            user-select: none;
+            transform-origin: center;
+        }
+
+        @keyframes fadeInText {
+            from { 
+                opacity: 0; 
+                transform: scale(0.5) translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        @keyframes floatText {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -10px) rotate(3deg); }
+            50% { transform: translate(0, -15px) rotate(0deg); }
+            75% { transform: translate(-10px, -10px) rotate(-3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .final-message {
+            color: white;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            max-width: 80%;
+            text-align: center;
+            z-index: 101;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .wrong-feedback {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 2px solid #f44336;
+        }
+
+        .countdown-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 90;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .countdown-text {
+            font-size: 5rem;
+            color: #ff6b9d;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        .countdown-number {
+            font-size: 8rem;
+            color: #ff4081;
+            text-shadow: 0 0 30px rgba(255, 64, 129, 0.8);
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        .hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: #ff6b9d;
+            opacity: 0.7;
+            animation: float 5s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .language-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* BGM Control Styles */
+        .bgm-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .bgm-control:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+        }
+
+        .bgm-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6e8efb;
+            transition: all 0.3s ease;
+        }
+
+        .bgm-btn:hover {
+            color: #a777e3;
+            transform: scale(1.1);
+        }
+
+        .volume-slider {
+            width: 100px;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bgm-control:hover .volume-slider {
+            opacity: 1;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #6e8efb;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .option {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .answer-text {
+                font-size: 5rem;
+            }
+            
+            .language-text {
+                font-size: 1.5rem;
+            }
+            
+            .countdown-text {
+                font-size: 3rem;
+            }
+            
+            .countdown-number {
+                font-size: 5rem;
+            }
+            
+            .bgm-control {
+                bottom: 10px;
+                right: 10px;
+                padding: 8px;
+            }
+            
+            .volume-slider {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 class="title">Find the Right Image</h1>
+        
+        <div class="question-container">
+            <h2 class="question" id="question-text">Where is the tree?</h2>
+            
+            <div class="options-container" id="options-container">
+                <!-- Options will be inserted by JavaScript -->
+            </div>
+            
+            <div class="feedback-message wrong-feedback" id="feedback-message">
+                abee itna bhi nhi ata!
+            </div>
+            
+            <button class="next-btn" id="next-btn">Next Question</button>
+            <button class="show-answer-btn" id="show-answer-btn">Show Answer</button>
+            
+            <div class="progress-container">
+                <div class="progress-dot active" id="dot-1"></div>
+                <div class="progress-dot" id="dot-2"></div>
+                <div class="progress-dot" id="dot-3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="countdown-container" id="countdown-container">
+        <div class="countdown-text">Answer in:</div>
+        <div class="countdown-number" id="countdown-number">5</div>
+        <div class="hearts-container" id="hearts-container">
+            <!-- Hearts will be generated by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="answer-container" id="answer-container">
+        <button class="close-btn" id="close-btn">×</button>
+        <div class="answer-text">YOU</div>
+        <div class="language-container" id="language-container">
+            <!-- Languages will be inserted by JavaScript -->
+        </div>
+        <p class="final-message">You found the secret! This quiz was all about YOU! 💖</p>
+    </div>
+    
+    <!-- BGM Control -->
+    <div class="bgm-control" id="bgm-control">
+        <button class="bgm-btn" id="bgm-toggle">🔊</button>
+        <input type="range" min="0" max="1" step="0.01" value="0.1" class="volume-slider" id="volume-slider">
+    </div>
+    
+    <!-- Audio Element -->
+    <audio id="bgm" loop>
+        <!-- 
+        REPLACE THIS SOURCE WITH YOUR OWN SONG FILE
+        Example: <source src="your-song.mp3" type="audio/mpeg">
+        -->
+        <source src="SVid.net--Nodivalandava-Lyrics-Hindi-Ishq-hai-Tamil-Kadhale-lyricsArjun-Janya-Armaan-Malik-Shreya.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz data
+            const quizData = [
+                {
+                    question: "Where is the tree?",
+                    options: [
+                        { image: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80", correct: true },
+                        { image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80", correct: false }
+                    ]
+                },
+                {
+                    question: "Where is the cat?",
+                    options: [
+                        { image: "OIP.jpg", correct: false },
+                        { image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80", correct: true }
+                    ]
+                },
+                {
+                    question: "Where is the moon?",
+                    options: [
+                        { image: "10841781.jpg", correct: false },
+                        { image: "https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80", correct: false }
+                    ]
+                }
+            ];
+
+            // Elements
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const nextBtn = document.getElementById('next-btn');
+            const showAnswerBtn = document.getElementById('show-answer-btn');
+            const answerContainer = document.getElementById('answer-container');
+            const closeBtn = document.getElementById('close-btn');
+            const languageContainer = document.getElementById('language-container');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const countdownContainer = document.getElementById('countdown-container');
+            const countdownNumber = document.getElementById('countdown-number');
+            const heartsContainer = document.getElementById('hearts-container');
+            const bgm = document.getElementById('bgm');
+            const bgmControl = document.getElementById('bgm-control');
+            const bgmToggle = document.getElementById('bgm-toggle');
+            const volumeSlider = document.getElementById('volume-slider');
+            const progressDots = [
+                document.getElementById('dot-1'),
+                document.getElementById('dot-2'),
+                document.getElementById('dot-3')
+            ];
+
+            // Quiz state
+            let currentQuestion = 0;
+            let selectedOption = null;
+            let lastQuestionSelections = 0;
+            let isBgmPlaying = false;
+            let volumeIncreaseInterval;
+
+            // Initialize quiz
+            loadQuestion();
+
+            // BGM Control
+            bgm.volume = 0.1; // Set initial very low volume
+            
+            // Wait for audio to load and then set start position
+            bgm.addEventListener('loadedmetadata', function() {
+                // Set the song to start from the middle (or any specific point you want)
+                // For a 3-4 minute song, starting from 90 seconds (middle) is good
+                // Change this value to start from any point in seconds
+                const startFromSeconds = 75; // Start from 1 minute 30 seconds
+                
+                // Make sure we don't set a time beyond the song duration
+                if (startFromSeconds < bgm.duration) {
+                    bgm.currentTime = startFromSeconds;
+                } else {
+                    // If the start time is beyond song duration, start from beginning
+                    bgm.currentTime = 0;
+                }
+            });
+            
+            bgmToggle.addEventListener('click', function() {
+                if (isBgmPlaying) {
+                    bgm.pause();
+                    bgmToggle.textContent = '🔇';
+                    isBgmPlaying = false;
+                    clearInterval(volumeIncreaseInterval);
+                } else {
+                    bgm.play().catch(e => console.log("Audio play failed:", e));
+                    bgmToggle.textContent = '🔊';
+                    isBgmPlaying = true;
+                }
+            });
+            
+            volumeSlider.addEventListener('input', function() {
+                bgm.volume = volumeSlider.value;
+                // If user manually changes volume, stop automatic increase
+                clearInterval(volumeIncreaseInterval);
+            });
+
+            // Load question function
+            function loadQuestion() {
+                // Reset selected option
+                selectedOption = null;
+                lastQuestionSelections = 0;
+                
+                // Hide feedback message
+                feedbackMessage.style.display = 'none';
+                
+                // Update question text
+                questionText.textContent = quizData[currentQuestion].question;
+                
+                // Clear options container
+                optionsContainer.innerHTML = '';
+                
+                // Add options
+                quizData[currentQuestion].options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.innerHTML = `<img src="${option.image}" alt="Option ${index + 1}">`;
+                    
+                    optionElement.addEventListener('click', () => selectOption(optionElement, index));
+                    
+                    optionsContainer.appendChild(optionElement);
+                });
+                
+                // Update progress dots
+                progressDots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentQuestion);
+                });
+                
+                // Show/hide buttons
+                nextBtn.style.display = currentQuestion < 2 ? 'block' : 'none';
+                showAnswerBtn.style.display = 'none';
+            }
+
+            // Select option function
+            function selectOption(optionElement, index) {
+                // Remove selected class from all options
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'wrong');
+                });
+                
+                // Add selected class to clicked option
+                optionElement.classList.add('selected');
+                selectedOption = index;
+                
+                const isCorrect = quizData[currentQuestion].options[index].correct;
+                
+                // Add correct/wrong class based on selection
+                if (isCorrect) {
+                    optionElement.classList.add('correct');
+                    
+                    // For the first two questions, automatically proceed if correct
+                    if (currentQuestion < 2) {
+                        setTimeout(() => {
+                            currentQuestion++;
+                            loadQuestion();
+                        }, 800);
+                    }
+                } else {
+                    optionElement.classList.add('wrong');
+                    
+                    // Show feedback message for wrong answers in first two questions
+                    if (currentQuestion < 2) {
+                        feedbackMessage.style.display = 'block';
+                        
+                        // Reload the same question after 1.5 seconds
+                        setTimeout(() => {
+                            loadQuestion();
+                        }, 1500);
+                    }
+                    
+                    // For the last question
+                    if (currentQuestion === 2) {
+                        lastQuestionSelections++;
+                        
+                        // Show feedback for wrong answer
+                        feedbackMessage.textContent = "Wrong! Try the other option.";
+                        feedbackMessage.style.display = 'block';
+                        
+                        // If both options have been selected, start the countdown
+                        if (lastQuestionSelections >= 2) {
+                            setTimeout(() => {
+                                startCountdown();
+                            }, 1000);
+                        }
+                    }
+                }
+            }
+
+            // Start countdown function
+            function startCountdown() {
+                // Start playing BGM at very low volume if not already playing
+                if (!isBgmPlaying) {
+                    bgm.play().catch(e => console.log("Audio play failed:", e));
+                    bgmToggle.textContent = '🔊';
+                    isBgmPlaying = true;
+                }
+                
+                // Set initial very low volume
+                bgm.volume = 0.1;
+                volumeSlider.value = 0.1;
+                
+                // Start gradually increasing volume during countdown
+                startGradualVolumeIncrease(0.1, 0.3, 5000); // Increase from 0.1 to 0.3 over 5 seconds
+                
+                // Hide quiz container with fade effect
+                document.querySelector('.quiz-container').classList.add('fade-out');
+                
+                // Change background to romantic theme
+                document.body.classList.add('romantic-bg');
+                
+                // Create floating hearts
+                createHearts();
+                
+                // Show countdown container
+                countdownContainer.style.display = 'flex';
+                
+                let count = 5;
+                countdownNumber.textContent = count;
+                
+                const countdownInterval = setInterval(() => {
+                    count--;
+                    countdownNumber.textContent = count;
+                    
+                    if (count <= 0) {
+                        clearInterval(countdownInterval);
+                        showAnswer();
+                    }
+                }, 1000);
+            }
+
+            // Function to gradually increase volume
+            function startGradualVolumeIncrease(startVolume, endVolume, duration) {
+                clearInterval(volumeIncreaseInterval);
+                
+                const steps = 50; // Number of steps for smooth transition
+                const stepTime = duration / steps;
+                const volumeIncrement = (endVolume - startVolume) / steps;
+                let currentStep = 0;
+                
+                volumeIncreaseInterval = setInterval(() => {
+                    if (currentStep >= steps) {
+                        clearInterval(volumeIncreaseInterval);
+                        bgm.volume = endVolume;
+                        volumeSlider.value = endVolume;
+                    } else {
+                        bgm.volume = startVolume + (volumeIncrement * currentStep);
+                        volumeSlider.value = bgm.volume;
+                        currentStep++;
+                    }
+                }, stepTime);
+            }
+
+            // Create floating hearts
+            function createHearts() {
+                for (let i = 0; i < 20; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤';
+                    heart.style.left = `${Math.random() * 100}%`;
+                    heart.style.animationDelay = `${Math.random() * 5}s`;
+                    heartsContainer.appendChild(heart);
+                }
+            }
+
+            // Next button event
+            nextBtn.addEventListener('click', () => {
+                if (selectedOption !== null) {
+                    currentQuestion++;
+                    loadQuestion();
+                } else {
+                    alert('Please select an option!');
+                }
+            });
+
+            // Show answer function
+            function showAnswer() {
+                // Hide countdown container
+                countdownContainer.style.display = 'none';
+                
+                // Show answer container
+                answerContainer.style.display = 'flex';
+                
+                // Continue increasing volume more during text appearance
+                startGradualVolumeIncrease(0.3, 0.7, 8000); // Increase from 0.3 to 0.7 over 8 seconds
+                
+                // Add languages randomly scattered on screen with smooth sequential appearance
+                const languages = [
+                    { text: "English: YOU", size: 2.5 },
+                    { text: "Hindi: तुम", size: 2.3 },
+                    { text: "Spanish: TÚ", size: 2.4 },
+                    { text: "French: TOI", size: 2.3 },
+                    { text: "German: DU", size: 2.5 },
+                    { text: "Italian: TU", size: 2.4 },
+                    { text: "Portuguese: VOCÊ", size: 2.2 },
+                    { text: "Russian: ТЫ", size: 2.5 },
+                    { text: "Japanese: あなた", size: 2.1 },
+                    { text: "Korean: 당신", size: 2.3 },
+                    { text: "Chinese: 你", size: 2.6 },
+                    { text: "Arabic: أنت", size: 2.4 },
+                    { text: "Bengali: তুমি", size: 2.2 },
+                    { text: "Tamil: நீ", size: 2.5 },
+                    { text: "Telugu: నీవు", size: 2.3 },
+                    { text: "Turkish: SEN", size: 2.4 },
+                    { text: "Dutch: JIJ", size: 2.5 },
+                    { text: "Greek: ΕΣΥ", size: 2.3 },
+                    { text: "Hebrew: אתה", size: 2.2 },
+                    { text: "Polish: TY", size: 2.5 },
+                    { text: "Ukrainian: ТИ", size: 2.4 },
+                    { text: "Vietnamese: BẠN", size: 2.3 },
+                    { text: "Thai: คุณ", size: 2.4 },
+                    { text: "Swedish: DU", size: 2.5 },
+                    { text: "Norwegian: DU", size: 2.4 },
+                    { text: "Finnish: SINÄ", size: 2.3 },
+                    { text: "Danish: DU", size: 2.5 },
+                    { text: "Indonesian: KAMU", size: 2.4 },
+                    { text: "Malay: ANDA", size: 2.3 },
+                    { text: "Swahili: WEWE", size: 2.2 }
+                ];
+                
+                languageContainer.innerHTML = '';
+                
+                // Generate positions that avoid overlap
+                const positions = generateNonOverlappingPositions(languages.length, 150, 50);
+                
+                // Show languages one by one with smooth animation
+                languages.forEach((language, index) => {
+                    setTimeout(() => {
+                        const languageElement = document.createElement('div');
+                        languageElement.className = 'language-text';
+                        languageElement.textContent = language.text;
+                        
+                        // Set random position
+                        languageElement.style.left = `${positions[index].x}px`;
+                        languageElement.style.top = `${positions[index].y}px`;
+                        
+                        // Set random font size
+                        languageElement.style.fontSize = `${language.size}rem`;
+                        
+                        // Random color from romantic palette
+                        const colors = [
+                            '#FFB6C1', '#FF69B4', '#FF1493', '#DB7093', 
+                            '#C71585', '#FFC0CB', '#FFD700', '#FFA07A',
+                            '#FF7F50', '#FF6347', '#FF4500', '#FFDAB9',
+                            '#E6E6FA', '#D8BFD8', '#DDA0DD', '#EE82EE',
+                            '#DA70D6', '#FF00FF', '#BA55D3', '#9370DB'
+                        ];
+                        languageElement.style.color = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        // Random animation delay and duration
+                        languageElement.style.animationDuration = `${12 + Math.random() * 8}s`;
+                        
+                        languageContainer.appendChild(languageElement);
+                    }, index * 200); // 200ms delay between each language for smooth sequential appearance
+                });
+            }
+
+            // Generate non-overlapping positions
+            function generateNonOverlappingPositions(count, minDistance, padding) {
+                const positions = [];
+                const maxAttempts = 1000;
+                
+                for (let i = 0; i < count; i++) {
+                    let attempts = 0;
+                    let position;
+                    let validPosition = false;
+                    
+                    while (attempts < maxAttempts && !validPosition) {
+                        position = {
+                            x: padding + Math.random() * (window.innerWidth - 2 * padding),
+                            y: padding + Math.random() * (window.innerHeight - 2 * padding)
+                        };
+                        
+                        validPosition = true;
+                        
+                        // Check distance from existing positions
+                        for (const existingPos of positions) {
+                            const dx = position.x - existingPos.x;
+                            const dy = position.y - existingPos.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < minDistance) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                        
+                        attempts++;
+                    }
+                    
+                    positions.push(position);
+                }
+                
+                return positions;
+            }
+
+            // Close button event
+            closeBtn.addEventListener('click', () => {
+                answerContainer.style.display = 'none';
+                bgm.pause();
+                bgm.currentTime = 0;
+                isBgmPlaying = false;
+                bgmToggle.textContent = '🔇';
+                clearInterval(volumeIncreaseInterval);
+                
+                // Reset quiz
+                currentQuestion = 0;
+                loadQuestion();
+                
+                // Reset background
+                document.body.classList.remove('romantic-bg');
+                document.querySelector('.quiz-container').classList.remove('fade-out');
+                
+                // Clear hearts
+                heartsContainer.innerHTML = '';
+            });
+        });
+    </script>
+</body>
+</html>
