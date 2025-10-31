@@ -1,132 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Mobile-block protector - paste in <head> -->
-<style>
-  /* mobile block message styles */
-  .mobile-block {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg,#0b1226 0%, #081428 100%);
-    color: #fff;
-    z-index: 99999;
-    padding: 20px;
-    text-align: center;
-    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  .mobile-block .msg {
-    max-width: 720px;
-    width: 100%;
-    background: rgba(0,0,0,0.45);
-    border-radius: 12px;
-    padding: 28px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    font-size: 1.15rem;
-    line-height: 1.4;
-  }
-  .mobile-block .hint {
-    margin-top: 12px;
-    font-size: 0.95rem;
-    color: #ffd7ea;
-    opacity: .95;
-  }
-  /* prevent interaction with underlying page */
-  body.mobile-locked { overflow: hidden !important; height: 100vh !important; touch-action: none !important; }
-</style>
-
-<script>
-(function() {
-  // Simple helper to detect 'mobile-like' environment
-  function isMobileLike() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera || "";
-    const uaLower = ua.toLowerCase();
-
-    // User agent hints for phones/tablets
-    const mobileUa = /android|iphone|ipad|ipod|blackberry|bb|playbook|silk|opera mini|mobile|kindle|windows phone|iemobile/;
-    const looksLikeMobileUa = mobileUa.test(uaLower);
-
-    // Touch capability & coarse pointer
-    const hasTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
-    const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-
-    // Small viewport check (common for phones)
-    const smallViewport = Math.min(window.innerWidth, window.innerHeight) <= 820; // allows large phones / small tablets
-
-    // Developer tools emulation detection heuristic:
-    // If viewport is very small but userAgent is desktop-like and no touch support, it's likely devtools emulation.
-    const uaLooksDesktop = !looksLikeMobileUa;
-    const likelyEmulated = uaLooksDesktop && smallViewport && !hasTouch;
-
-    // navigator.platform can give clues (not reliable alone)
-    const platform = (navigator.platform || "").toLowerCase();
-    const isDesktopPlatform = /win|mac|linux|x11/.test(platform);
-
-    // Final decision:
-    // If UA says mobile OR touch/coarse OR small viewport with mobile UA -> treat as mobile.
-    // Also if viewport small AND (no touch) AND we detect emulation -> treat as mobile (this blocks devtools device emulation attempt).
-    return looksLikeMobileUa || hasTouch || coarsePointer || (smallViewport && (looksLikeMobileUa || likelyEmulated));
-  }
-
-  // Replace page content with message
-  function showMobileBlock() {
-    // prevent multiple inserts
-    if (document.getElementById('mobile-block-overlay')) return;
-
-    // Add class to body to stop scrolling / interactions
-    document.documentElement.classList.add('mobile-locked');
-    document.body.classList.add('mobile-locked');
-
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'mobile-block-overlay';
-    overlay.className = 'mobile-block';
-    overlay.innerHTML = `
-      <div class="msg">
-        <div style="font-size:1.6rem;font-weight:700">bol rha hu na laptop ma open kr le pgl</div>
-        <div class="hint">(This page is optimized for laptop/desktop — please open on a larger screen)</div>
-      </div>
-    `;
-
-    // clear body and append overlay only
-    // If you prefer to hide instead of clearing, comment the next two lines and use appendChild only.
-    while (document.body.firstChild) document.body.removeChild(document.body.firstChild);
-    document.body.appendChild(overlay);
-
-    // Prevent further JS/actions (best-effort)
-    try {
-      // remove event listeners? Can't reliably remove all — but disable pointer events globally
-      document.documentElement.style.pointerEvents = 'none';
-      overlay.style.pointerEvents = 'auto'; // allow overlay interaction (none needed)
-    } catch(e) { /* no-op */ }
-  }
-
-  // Run early to block before the page loads fully
-  try {
-    // If page is already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      if (isMobileLike()) showMobileBlock();
-    } else {
-      // Run as soon as DOM is ready
-      document.addEventListener('DOMContentLoaded', function() {
-        if (isMobileLike()) showMobileBlock();
-      });
-    }
-
-    // Also watch for resize/orientation changes (someone might resize window)
-    window.addEventListener('resize', function() {
-      if (isMobileLike()) {
-        showMobileBlock();
-      }
-    });
-  } catch (err) {
-    // If anything breaks, don't block the page silently — fail open
-    console.warn('mobile-block error', err);
-  }
-})();
-</script>
+ 
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1045,5 +920,6 @@
     </script>
 </body>
 </html>
+
 
 
